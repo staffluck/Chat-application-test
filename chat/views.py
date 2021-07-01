@@ -17,8 +17,8 @@ class MessagesDialogGetView(ListCreateAPIView):
     serializer_class = MessageSerializer
 
     def get_queryset(self):
-        # return Dialog.objects.get(id=self.query_params)
-        pass
+        dialog_id = self.request.path.split('/')[-2]
+        return Dialog.objects.filter(id=dialog_id)
 
 
 def index(request):

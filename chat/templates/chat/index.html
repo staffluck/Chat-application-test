@@ -155,7 +155,8 @@
           });
 
           socket.onmessage = function (e) {
-              getMessageById(e.data);
+              // getMessageById(e.data);
+              console.log(e.data)
           };
       });
     </script>

@@ -22,13 +22,12 @@ class Message(models.Model):
     def notify_socket(self):
 
         notification = {
-            "type": "receive_group_message",
+            "type": "chat_message",
             "message": self.id
         }
 
         layer = get_channel_layer()
 
-        async_to_sync(layer.group_send)("{}".format(self.authour.id), notification)
         for user in self.dialog.users.all():
             async_to_sync(layer.group_send)("{}".format(user.id), notification)
 
@@ -36,7 +35,7 @@ class Message(models.Model):
         is_new = self.id
         self.body = self.body.strip()
         super().save(*args, **kwargs)
-        if is_new:
+        if is_new is None:
             self.notify_socket()
 
     class Meta:

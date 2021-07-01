@@ -32,11 +32,13 @@ class DialogSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     def create(self, validated_data):
+        author = validated_data['user']
         body = validated_data['body']
         dialog = validated_data['dialog']
-        message = Message.objects.create(body=body, dialog=dialog)
+        message = Message.objects.create(body=body, dialog=dialog, author=author)
 
         return message
 
