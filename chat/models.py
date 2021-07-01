@@ -1,11 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
 
 class Dialog(models.Model):
     users = models.ManyToManyField(User, related_name="dialogs", db_index=True)
     title = models.CharField(max_length=60, null=True)
+
 
 class Message(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="messages", db_index=True, null=True)
