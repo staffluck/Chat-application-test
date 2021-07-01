@@ -22,7 +22,7 @@
             $.post("http://127.0.0.1:8000/auth/jwt/create/", {username: username, password: password}, function(response){
                 var access_token = response['access']
                 localStorage.setItem("access_token", access_token)
-                console.log("ASDADSD")
+                
                 window.location.replace("chat/")
             }).fail(function(response){
                 alert("fail")

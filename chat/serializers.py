@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from .models import Dialog
+from .models import Dialog, Message
 
 
 class DialogSerializer(serializers.ModelSerializer):
@@ -28,4 +28,18 @@ class DialogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Dialog
-        fields = ['title', 'last_message', 'id', 'users', 'user']
+        fields = "__all__"
+
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        body = validated_data['body']
+        dialog = validated_data['dialog']
+        message = Message.objects.create(body=body, dialog=dialog)
+
+        return message
+
+    class Meta:
+        model = Message
+        exclude = ('author', )

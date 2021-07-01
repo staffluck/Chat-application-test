@@ -18,7 +18,7 @@
     <div class="container">
       
         <div class="row no-gutters">
-          <div class="col-md-4 border-right user-list">
+          <div class="col-md-4 border-right" id="user-list">
             <div class="settings-tray">
               <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/filip.jpg" alt="Profile img">
               <span class="settings-tray--right">
@@ -82,6 +82,7 @@
       let messageList = $('#messages');
 
       function updateUserList() {
+        
         $.getJSON('dialogs/', function (data) {
             for (let i = 0; i < data.length; i++) {
               const template = `<div class="friend-drawer friend-drawer--onhover">
@@ -93,7 +94,7 @@
                 <span class="time text-muted small">13:21</span>
               </div>
               <hr>`
-                $(template).appendTo('.user-list');
+                $(template).appendTo('#user-list');
             }
             $('.user').click(function () {
                 userList.children('.active').removeClass('active');
@@ -107,6 +108,22 @@
         });
 }
 
+      function getConversation(id) {
+          $.getJSON(`/api/v1/message/?target=${recipient}`, function (data) {
+              messageList.children('.message').remove();
+              for (let i = data['results'].length - 1; i >= 0; i--) {
+                  drawMessage(data['results'][i]);
+              }
+              messageList.animate({scrollTop: messageList.prop('scrollHeight')});
+          });
+
+    }
+
+      function setCurrentRecipient(id) {
+          currentRecipient = id;
+          getConversation(id);
+      }
+
 
       $(document).ready(function () {
           $.ajaxSetup({
@@ -114,29 +131,32 @@
               'Authorization' : `JWT ${localStorage.getItem("access_token")}`
             }
           });
+          
           updateUserList();
           // disableInput();
+          $.get("http://127.0.0.1:8000/auth/users/me/", function(response){
+                    localStorage.setItem("id", response['id'])
+                })
+          var id = localStorage.getItem("id")
+          var socket = new WebSocket(
+              'ws://' + window.location.host +
+              '/ws/chat/' + id + "/")
 
-      //    let socket = new WebSocket(`ws://127.0.0.1:8000/?session_key=${sessionKey}`);
-          // var socket = new WebSocket(
-          //     'ws://' + window.location.host +
-          //     '/ws?session_key=${sessionKey}')
+          chatInput.keypress(function (e) {
+              if (e.keyCode == 13)
+                  chatButton.click();
+          });
 
-          // chatInput.keypress(function (e) {
-          //     if (e.keyCode == 13)
-          //         chatButton.click();
-          // });
+          chatButton.click(function () {
+              if (chatInput.val().length > 0) {
+                  sendMessage(currentRecipient, chatInput.val());
+                  chatInput.val('');
+              }
+          });
 
-          // chatButton.click(function () {
-          //     if (chatInput.val().length > 0) {
-          //         sendMessage(currentRecipient, chatInput.val());
-          //         chatInput.val('');
-          //     }
-          // });
-
-          // socket.onmessage = function (e) {
-          //     getMessageById(e.data);
-          // };
+          socket.onmessage = function (e) {
+              getMessageById(e.data);
+          };
       });
     </script>
     </html>
