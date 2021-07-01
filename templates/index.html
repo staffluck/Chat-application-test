@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    Authorization: <br>
+    <input id="username-input" type="text" size="100"><br>
+    <input id="password-input" type="password" size="100"><br>
+    <input id="auth-submit" type="button" value="Enter">
+
+    <script>
+        if(localStorage.getItem('access_token')) {
+            window.location.pathname = '/dialogs/'
+        }
+        document.querySelector('#username-input').focus();
+        document.querySelector('#password-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#auth-submit').click();
+            }
+        };
+
+        document.querySelector('#auth-submit').onclick = function(e) {
+            var username = document.querySelector('#username-input').value;
+            var password = document.querySelector('#password-input').value;
+            $.post("http://127.0.0.1:8000/auth/jwt/create/", {username: username, password: password}, function(response){
+                var access_token = response['access']
+                localStorage.setItem("access_token", access_token)
+                // window.location.pathname = '/dialogs/'
+            }).fail(function(response){
+                alert("fail")
+            })
+        };
+    </script>
+{% endblock %}

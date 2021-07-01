@@ -15,9 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import render
+
+
+def index(request):
+    return render(request, "index.html")
+
 
 urlpatterns = [
-    path("chat/", include("chat.urls")),
+    path('', index),
+    path('chat/', include("chat.urls")),
     path('admin/', admin.site.urls),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
