@@ -1,0 +1,6 @@
+Pipfile.lock
+Pipfile
+db.sqlite3
+*/migrations
+*/.vscode/
+*/__pycache__
