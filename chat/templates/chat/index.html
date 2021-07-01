@@ -17,7 +17,7 @@
 <div class="container">
     <div class="container">
         <div class="row no-gutters">
-          <div class="col-md-4 border-right">
+          <div class="col-md-4 border-right user-list">
             <div class="settings-tray">
               <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/filip.jpg" alt="Profile img">
               <span class="settings-tray--right">
@@ -41,50 +41,7 @@
               <span class="time text-muted small">13:21</span>
             </div>
             <hr>
-            <div class="friend-drawer friend-drawer--onhover">
-              <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/optimus-prime.jpeg" alt="">
-              <div class="text">
-                <h6>Optimus</h6>
-                <p class="text-muted">Wanna grab a beer?</p>
-              </div>
-              <span class="time text-muted small">00:32</span>
-            </div>
-            <hr>
-            <div class="friend-drawer friend-drawer--onhover ">
-              <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/real-terminator.png" alt="">
-              <div class="text">
-                <h6>Skynet</h6>
-                <p class="text-muted">Seen that canned piece of s?</p>
-              </div>
-              <span class="time text-muted small">13:21</span>
-            </div>
-            <hr>
-            <div class="friend-drawer friend-drawer--onhover">
-              <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/termy.jpg" alt="">
-              <div class="text">
-                <h6>Termy</h6>
-                <p class="text-muted">Im studying spanish...</p>
-              </div>
-              <span class="time text-muted small">13:21</span>
-            </div>
-            <hr>
-            <div class="friend-drawer friend-drawer--onhover">
-              <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/rick.jpg" alt="">
-              <div class="text">
-                <h6>Richard</h6>
-                <p class="text-muted">I'm not sure...</p>
-              </div>
-              <span class="time text-muted small">13:21</span>
-            </div>
-            <hr>
-            <div class="friend-drawer friend-drawer--onhover">
-              <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/rachel.jpeg" alt="">
-              <div class="text">
-                <h6>XXXXX</h6>
-                <p class="text-muted">Hi, wanna see something?</p>
-              </div>
-              <span class="time text-muted small">13:21</span>
-            </div>
+            
           </div>
           <div class="col-md-8">
             <div class="settings-tray">
@@ -101,52 +58,10 @@
                 </span>
               </div>
             </div>
-            <div class="chat-panel">
+            <div class="chat-panel" id="messages">
               <div class="row no-gutters">
                 <div class="col-md-3">
                   <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3 offset-md-9">
-                  <div class="chat-bubble chat-bubble--right">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3 offset-md-9">
-                  <div class="chat-bubble chat-bubble--right">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
-              <div class="row no-gutters">
-                <div class="col-md-3 offset-md-9">
-                  <div class="chat-bubble chat-bubble--right">
                     Hello dude!
                   </div>
                 </div>
@@ -155,9 +70,9 @@
                 <div class="col-12">
                   <div class="chat-box-tray">
                     <i class="material-icons">sentiment_very_satisfied</i>
-                    <input type="text" placeholder="Type your message here...">
+                    <input type="text" placeholder="Type your message here..." id="chat-input">
                     <i class="material-icons">mic</i>
-                    <i class="material-icons">send</i>
+                    <i class="material-icons" id="chat-button">send</i>
                   </div>
                 </div>
               </div>
@@ -167,4 +82,54 @@
       </div>
     </body>
     <script src="{% static 'app.js' %}"></script>
+    <script>
+      let currentRecipient = '';
+      let chatInput = $('#chat-input');
+      let chatButton = $('#btn-send');
+      let userList = $('#user-list');
+      let messageList = $('#messages');
+
+      function updateUserList() {
+        $.getJSON('dialogs/', function (data) {
+            userList.children('.user').remove();
+            for (let i = 0; i < data.length; i++) {
+                const userItem = `<a class="list-group-item user">${data[i]['username']}</a>`;
+                $(userItem).appendTo('#user-list');
+            }
+            $('.user').click(function () {
+                userList.children('.active').removeClass('active');
+                let selected = event.target;
+                $(selected).addClass('active');
+                setCurrentRecipient(selected.text);
+            });
+        });
+}
+
+
+      $(document).ready(function () {
+          updateUserList();
+          disableInput();
+
+      //    let socket = new WebSocket(`ws://127.0.0.1:8000/?session_key=${sessionKey}`);
+          // var socket = new WebSocket(
+          //     'ws://' + window.location.host +
+          //     '/ws?session_key=${sessionKey}')
+
+          // chatInput.keypress(function (e) {
+          //     if (e.keyCode == 13)
+          //         chatButton.click();
+          // });
+
+          // chatButton.click(function () {
+          //     if (chatInput.val().length > 0) {
+          //         sendMessage(currentRecipient, chatInput.val());
+          //         chatInput.val('');
+          //     }
+          // });
+
+          // socket.onmessage = function (e) {
+          //     getMessageById(e.data);
+          // };
+      });
+    </script>
     </html>
