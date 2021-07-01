@@ -8,7 +8,7 @@
 
     <script>
         if(localStorage.getItem('access_token')) {
-            window.location.pathname = '/dialogs/'
+            window.location.pathname = '/chat/'
         }
         document.querySelector('#username-input').focus();
         document.querySelector('#password-input').onkeyup = function(e) {
@@ -23,7 +23,7 @@
             $.post("http://127.0.0.1:8000/auth/jwt/create/", {username: username, password: password}, function(response){
                 var access_token = response['access']
                 localStorage.setItem("access_token", access_token)
-                // window.location.pathname = '/dialogs/'
+                // window.location.pathname = '/chat/'
             }).fail(function(response){
                 alert("fail")
             })
