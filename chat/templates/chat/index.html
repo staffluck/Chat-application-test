@@ -16,13 +16,14 @@
 <body>
 <div class="container">
     <div class="container">
+      
         <div class="row no-gutters">
           <div class="col-md-4 border-right user-list">
             <div class="settings-tray">
               <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/filip.jpg" alt="Profile img">
               <span class="settings-tray--right">
                 <i class="material-icons">cached</i>
-                <i class="material-icons">message</i>
+                <i class="material-icons" data-target="#login" data-toggle="modal">message</i>
                 <i class="material-icons">menu</i>
               </span>
             </div>
@@ -32,15 +33,6 @@
                 <input placeholder="Search here" type="text">
               </div>
             </div>
-            <div class="friend-drawer friend-drawer--onhover">
-              <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/robocop.jpg" alt="">
-              <div class="text">
-                <h6>Robo Cop</h6>
-                <p class="text-muted">Hey, you're arrested!</p>
-              </div>
-              <span class="time text-muted small">13:21</span>
-            </div>
-            <hr>
             
           </div>
           <div class="col-md-8">
@@ -91,10 +83,17 @@
 
       function updateUserList() {
         $.getJSON('dialogs/', function (data) {
-            userList.children('.user').remove();
             for (let i = 0; i < data.length; i++) {
-                const userItem = `<a class="list-group-item user">${data[i]['username']}</a>`;
-                $(userItem).appendTo('#user-list');
+              const template = `<div class="friend-drawer friend-drawer--onhover">
+                <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/robocop.jpg" alt="">
+                <div class="text">
+                  <h6>${data[i]['title']}</h6>
+                  <p class="text-muted">${data[i]['last_message']}</p>
+                </div>
+                <span class="time text-muted small">13:21</span>
+              </div>
+              <hr>`
+                $(template).appendTo('.user-list');
             }
             $('.user').click(function () {
                 userList.children('.active').removeClass('active');
@@ -102,13 +101,21 @@
                 $(selected).addClass('active');
                 setCurrentRecipient(selected.text);
             });
+        }).fail(function(request){
+          localStorage.removeItem("access_token")
+          window.location.replace("/")
         });
 }
 
 
       $(document).ready(function () {
+          $.ajaxSetup({
+            headers : {   
+              'Authorization' : `JWT ${localStorage.getItem("access_token")}`
+            }
+          });
           updateUserList();
-          disableInput();
+          // disableInput();
 
       //    let socket = new WebSocket(`ws://127.0.0.1:8000/?session_key=${sessionKey}`);
           // var socket = new WebSocket(

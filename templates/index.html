@@ -8,7 +8,7 @@
 
     <script>
         if(localStorage.getItem('access_token')) {
-            window.location.pathname = '/chat/'
+            window.location.replace("chat/")
         }
         document.querySelector('#username-input').focus();
         document.querySelector('#password-input').onkeyup = function(e) {
@@ -16,14 +16,14 @@
                 document.querySelector('#auth-submit').click();
             }
         };
-
         document.querySelector('#auth-submit').onclick = function(e) {
             var username = document.querySelector('#username-input').value;
             var password = document.querySelector('#password-input').value;
             $.post("http://127.0.0.1:8000/auth/jwt/create/", {username: username, password: password}, function(response){
                 var access_token = response['access']
                 localStorage.setItem("access_token", access_token)
-                // window.location.pathname = '/chat/'
+                console.log("ASDADSD")
+                window.location.replace("chat/")
             }).fail(function(response){
                 alert("fail")
             })

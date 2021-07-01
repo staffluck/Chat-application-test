@@ -6,27 +6,26 @@ from .models import Dialog
 
 class DialogSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
-    users = serializers.ListField()
-    user = serializers.CurrentUserDefault()
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     def create(self, validated_data):
         user = validated_data['user']
-        users_ids = validated_data['users']
-        dialog = Dialog.objects.create()
+        users = validated_data['users']
+        dialog = Dialog.objects.create(title=validated_data['title'])
         users_to_add = []
 
-        for id_ in users_ids:
-            user_to_add = User.objects.filter(id=id_)
-            if user_to_add.exists():
-                users_to_add.append(user_to_add)
+        for user_ in users:
+            users_to_add.append(user_)
         dialog.users.add(user, *users_to_add)
 
         return dialog
 
     def get_last_message(self, obj):
         last_message = obj.messages.last()
-        return last_message
+        if last_message:
+            return last_message.body
+        return ""
 
     class Meta:
         model = Dialog
-        exclude = ("messages")
+        fields = ['title', 'last_message', 'id', 'users', 'user']

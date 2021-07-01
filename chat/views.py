@@ -9,7 +9,7 @@ class DialogListCreateView(ListCreateAPIView):
     serializer_class = DialogSerializer
 
     def get_queryset(self):
-        return Dialog.objects.filter(users__in=self.request.user)
+        return Dialog.objects.filter(users__id=self.request.user.id)
 
 
 def index(request):
