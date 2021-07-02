@@ -23,7 +23,7 @@ class Message(models.Model):
 
         notification = {
             "type": "chat_message",
-            "message": self.id
+            "message": {"body": self.body, "dialog_id": self.dialog.id, "author": self.author.id}
         }
 
         layer = get_channel_layer()

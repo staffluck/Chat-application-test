@@ -13,7 +13,7 @@ class DialogListCreateView(ListCreateAPIView):
         return Dialog.objects.filter(users__id=self.request.user.id)
 
 
-class MessagesDialogGetView(ListCreateAPIView):
+class MessagesDialogListCreateView(ListCreateAPIView):
     serializer_class = MessageSerializer
 
     def get_queryset(self):

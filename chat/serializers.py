@@ -1,3 +1,4 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
@@ -33,14 +34,21 @@ class MessageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         author = validated_data['user']
         body = validated_data['body']
-        dialog = validated_data['dialog']
+        dialog_id = self.context['request'].path.split('/')[-2]
+        dialog = Dialog.objects.get(id=dialog_id)
         message = Message.objects.create(body=body, dialog=dialog, author=author)
 
         return message
 
+    def validate(self, data):
+        dialog_id = self.context['request'].path.split('/')[-2]
+        if not Dialog.objects.filter(id=dialog_id).exists():
+            raise ValidationError({"details": "Not found"}, 404)
+        return data
+
     class Meta:
         model = Message
-        fields = "__all__"
+        exclude = ("dialog", )
 
         extra_kwargs = {
             "author": {

@@ -53,7 +53,7 @@
             <div class="chat-panel" id="messages">
               
               
-              <div class="row">
+              <div class="row" id="messages_before">
                 <div class="col-12">
                   <div class="chat-box-tray">
                     <i class="material-icons">sentiment_very_satisfied</i>
@@ -127,11 +127,19 @@
                   </div>
                 </div>`; 
           }
-          $("#messages").prepend(messageItem)
+          $("#messages_before").before(messageItem)
       }
 
+      function sendMessage(dialog_id, body) {
+        $.post(`/chat/messages/${dialog_id}/`, {
+            body: body
+        }).fail(function () {
+            alert('Error! Check console!');
+        });
+    }
+
       function getConversation(id) {
-          $.getJSON(`/chat/messages/${id}/`, function (data) {
+          $.getJSON(`/chat/messages/${id}`, function (data) {
               messageList.children('.message').remove();
               for (let i = data.length - 1; i >= 0; i--) {
                   drawMessage(data[i]);
@@ -140,6 +148,14 @@
           });
 
     }
+
+      function getMessageById(message) {
+          message = JSON.parse(message)
+          if (message.message.dialog_id == currentRecipient) {
+              drawMessage(message.message)
+          }
+          messageList.animate({scrollTop: messageList.prop('scrollHeight')});
+  }
 
       function setCurrentRecipient(id) {
           currentRecipient = id;
@@ -177,8 +193,9 @@
           });
 
           socket.onmessage = function (e) {
-              // getMessageById(e.data);
-              console.log(e.data)
+              getMessageById(e.data);
+              // console.log(e)
+              // console.log(e.data)
           };
       });
     </script>
