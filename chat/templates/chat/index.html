@@ -51,13 +51,8 @@
               </div>
             </div>
             <div class="chat-panel" id="messages">
-              <div class="row no-gutters">
-                <div class="col-md-3">
-                  <div class="chat-bubble chat-bubble--left">
-                    Hello dude!
-                  </div>
-                </div>
-              </div>
+              
+              
               <div class="row">
                 <div class="col-12">
                   <div class="chat-box-tray">
@@ -77,7 +72,7 @@
     <script>
       let currentRecipient = '';
       let chatInput = $('#chat-input');
-      let chatButton = $('#btn-send');
+      let chatButton = $('#chat-button');
       let userList = $('#user-list');
       let messageList = $('#messages');
 
@@ -85,7 +80,7 @@
         
         $.getJSON('dialogs/', function (data) {
             for (let i = 0; i < data.length; i++) {
-              const template = `<div class="friend-drawer friend-drawer--onhover user" id="${data[i]['id']}">
+              const template = `<div class="friend-drawer friend-drawer--onhover user" data-id="${data[i]['id']}"">
                 <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/robocop.jpg" alt="">
                 <div class="text">
                   <h6>${data[i]['title']}</h6>
@@ -98,11 +93,8 @@
             }
             $('.user').click(function () {
                 event.stopPropagation();
-                userList.children('.active').removeClass('active');
                 let selected = event.currentTarget;
-                $(selected).addClass('active');
-                console.log(selected)
-                setCurrentRecipient(selected.text);
+                setCurrentRecipient(selected.getAttribute("data-id"));
             });
         }).fail(function(request){
           localStorage.removeItem("access_token")
@@ -110,14 +102,41 @@
         });
 }
 
+      function drawMessage(message) {
+          let position = 'left';
+          const date = new Date(message.timestamp);
+          if (message.author == localStorage.getItem("id")) position = 'right';
+          let messageItem = ""
+          if (position == "right") {
+            messageItem = `
+          <div class="row no-gutters message">
+                <div class="col-md-3 offset-md-9">
+                  <div class="chat-bubble chat-bubble--right">
+                    ${message.body}
+                  </div>
+                </div>
+              </div>`
+          }
+          else {
+            messageItem = `
+            <div class="row no-gutters message">
+                  <div class="col-md-3">
+                    <div class="chat-bubble chat-bubble--left">
+                      ${message.body}
+                    </div>
+                  </div>
+                </div>`; 
+          }
+          $("#messages").prepend(messageItem)
+      }
+
       function getConversation(id) {
-          $.getJSON(`/messages/${id}/`, function (data) {
-              console.log(data)
-              // messageList.children('.message').remove();
-              // for (let i = data['results'].length - 1; i >= 0; i--) {
-              //     drawMessage(data['results'][i]);
-              // }
-              // messageList.animate({scrollTop: messageList.prop('scrollHeight')});
+          $.getJSON(`/chat/messages/${id}/`, function (data) {
+              messageList.children('.message').remove();
+              for (let i = data.length - 1; i >= 0; i--) {
+                  drawMessage(data[i]);
+              }
+              messageList.animate({scrollTop: messageList.prop('scrollHeight')});
           });
 
     }
