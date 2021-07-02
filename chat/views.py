@@ -18,8 +18,10 @@ class MessagesDialogGetView(ListCreateAPIView):
 
     def get_queryset(self):
         dialog_id = self.request.path.split('/')[-2]
-        return Dialog.objects.filter(id=dialog_id)
-
+        dialog = Dialog.objects.filter(id=dialog_id)
+        if dialog.exists():
+            return dialog.first().messages.all()
+        return []
 
 def index(request):
     return render(request, 'chat/index.html')

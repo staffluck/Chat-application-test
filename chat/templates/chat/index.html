@@ -85,7 +85,7 @@
         
         $.getJSON('dialogs/', function (data) {
             for (let i = 0; i < data.length; i++) {
-              const template = `<div class="friend-drawer friend-drawer--onhover">
+              const template = `<div class="friend-drawer friend-drawer--onhover user" id="${data[i]['id']}">
                 <img class="profile-image" src="https://www.clarity-enhanced.net/wp-content/uploads/2020/06/robocop.jpg" alt="">
                 <div class="text">
                   <h6>${data[i]['title']}</h6>
@@ -97,9 +97,11 @@
                 $(template).appendTo('#user-list');
             }
             $('.user').click(function () {
+                event.stopPropagation();
                 userList.children('.active').removeClass('active');
-                let selected = event.target;
+                let selected = event.currentTarget;
                 $(selected).addClass('active');
+                console.log(selected)
                 setCurrentRecipient(selected.text);
             });
         }).fail(function(request){
@@ -109,12 +111,13 @@
 }
 
       function getConversation(id) {
-          $.getJSON(`/api/v1/message/?target=${recipient}`, function (data) {
-              messageList.children('.message').remove();
-              for (let i = data['results'].length - 1; i >= 0; i--) {
-                  drawMessage(data['results'][i]);
-              }
-              messageList.animate({scrollTop: messageList.prop('scrollHeight')});
+          $.getJSON(`/messages/${id}/`, function (data) {
+              console.log(data)
+              // messageList.children('.message').remove();
+              // for (let i = data['results'].length - 1; i >= 0; i--) {
+              //     drawMessage(data['results'][i]);
+              // }
+              // messageList.animate({scrollTop: messageList.prop('scrollHeight')});
           });
 
     }

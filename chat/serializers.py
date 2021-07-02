@@ -12,16 +12,12 @@ class DialogSerializer(serializers.ModelSerializer):
         user = validated_data['user']
         users = validated_data['users']
         dialog = Dialog.objects.create(title=validated_data['title'])
-        users_to_add = []
-
-        for user_ in users:
-            users_to_add.append(user_)
-        dialog.users.add(user, *users_to_add)
+        dialog.users.add(user, *users)
 
         return dialog
 
     def get_last_message(self, obj):
-        last_message = obj.messages.last()
+        last_message = obj.messages.first()
         if last_message:
             return last_message.body
         return ""
