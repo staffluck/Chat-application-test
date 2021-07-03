@@ -20,14 +20,16 @@ class Message(models.Model):
         return "{}: {}".format(self.id, self.body)
 
     def notify_socket(self):
-
         notification = {
             "type": "chat_message",
-            "message": {"body": self.body, "dialog_id": self.dialog.id, "author": self.author.id}
+            "message": {
+                "body": self.body,
+                "dialog_id": self.dialog.id,
+                "author": self.author.id
+            }
         }
 
         layer = get_channel_layer()
-
         for user in self.dialog.users.all():
             async_to_sync(layer.group_send)("{}".format(user.id), notification)
 

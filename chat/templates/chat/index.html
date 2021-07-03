@@ -70,13 +70,13 @@
     </body>
     <script src="{% static 'app.js' %}"></script>
     <script>
-      let currentRecipient = '';
+      let currentDialog = '';
       let chatInput = $('#chat-input');
       let chatButton = $('#chat-button');
       let userList = $('#user-list');
       let messageList = $('#messages');
 
-      function updateUserList() {
+      function updateDialogList() {
         
         $.getJSON('dialogs/', function (data) {
             for (let i = 0; i < data.length; i++) {
@@ -94,7 +94,7 @@
             $('.user').click(function () {
                 event.stopPropagation();
                 let selected = event.currentTarget;
-                setCurrentRecipient(selected.getAttribute("data-id"));
+                setCurrentDialog(selected.getAttribute("data-id"));
             });
         }).fail(function(request){
           localStorage.removeItem("access_token")
@@ -141,8 +141,8 @@
       function getConversation(id) {
           $.getJSON(`/chat/messages/${id}`, function (data) {
               messageList.children('.message').remove();
-              for (let i = data.length - 1; i >= 0; i--) {
-                  drawMessage(data[i]);
+              for (let i = data['results'].length - 1; i >= 0; i--) {
+                  drawMessage(data['results'][i]);
               }
               messageList.animate({scrollTop: messageList.prop('scrollHeight')});
           });
@@ -151,14 +151,14 @@
 
       function getMessageById(message) {
           message = JSON.parse(message)
-          if (message.message.dialog_id == currentRecipient) {
+          if (message.message.dialog_id == currentDialog) {
               drawMessage(message.message)
           }
           messageList.animate({scrollTop: messageList.prop('scrollHeight')});
   }
 
-      function setCurrentRecipient(id) {
-          currentRecipient = id;
+      function setCurrentDialog(id) {
+          currentDialog = id;
           getConversation(id);
       }
 
@@ -170,8 +170,7 @@
             }
           });
           
-          updateUserList();
-          // disableInput();
+          updateDialogList();
           $.get("http://127.0.0.1:8000/auth/users/me/", function(response){
                     localStorage.setItem("id", response['id'])
                 })
@@ -187,15 +186,13 @@
 
           chatButton.click(function () {
               if (chatInput.val().length > 0) {
-                  sendMessage(currentRecipient, chatInput.val());
+                  sendMessage(currentDialog, chatInput.val());
                   chatInput.val('');
               }
           });
 
           socket.onmessage = function (e) {
               getMessageById(e.data);
-              // console.log(e)
-              // console.log(e.data)
           };
       });
     </script>
