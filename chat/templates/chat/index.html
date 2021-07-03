@@ -149,11 +149,18 @@
 
     }
 
+      function setLastMessage(message) {
+        var last_message_p = $(`div[data-id="${message.dialog_id}"]`).children(".text").children('.text-muted').text(message.body)
+        console.log(last_message_p)
+      }
+
       function getMessageById(message) {
           message = JSON.parse(message)
           if (message.message.dialog_id == currentDialog) {
               drawMessage(message.message)
           }
+          setLastMessage(message.message)
+
           messageList.animate({scrollTop: messageList.prop('scrollHeight')});
   }
 
